@@ -36,8 +36,9 @@ class AdminPanelProvider extends PanelProvider
                 Dashboard::class,
             ])
             ->widgets([
-                AccountWidget::class,
-                FilamentInfoWidget::class,
+                \App\Livewire\StatsOverviewWidget::class,
+                \App\Livewire\SalesChart::class,
+                \App\Livewire\TopProductsWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
