@@ -22,7 +22,8 @@ class SaleForm
                     ->relationship('user', 'name')
                     ->default(fn() => Filament::auth()->id())
                     ->required()
-                    ->disabled(), // El cajero es el usuario logueado
+                    ->disabled()
+                    ->dehydrated(), // Enviar valor aunque esté disabled
 
                 // Cliente
                 TextInput::make('customer_name')
@@ -41,9 +42,27 @@ class SaleForm
                     ->schema([
                         Select::make('product_id')
                             ->label('Producto')
-                            ->options(Product::where('is_active', true)->pluck('name', 'id'))
-                            ->required()
                             ->searchable()
+                            ->getSearchResultsUsing(
+                                fn(string $search): array =>
+                                Product::where('is_active', true)
+                                    ->where(function ($query) use ($search) {
+                                        $query->where('name', 'like', "%{$search}%")
+                                            ->orWhere('sku', 'like', "%{$search}%")
+                                            ->orWhere('barcode', 'like', "%{$search}%");
+                                    })
+                                    ->limit(50)
+                                    ->get()
+                                    ->mapWithKeys(fn($product) => [
+                                        $product->id => "{$product->name} - {$product->sku} (Stock: {$product->stock})"
+                                    ])
+                                    ->toArray()
+                            )
+                            ->getOptionLabelUsing(
+                                fn($value): ?string =>
+                                Product::find($value)?->name
+                            )
+                            ->required()
                             ->reactive()
                             ->afterStateUpdated(function ($set, $get, $state) {
                                 if ($state) {
@@ -52,6 +71,9 @@ class SaleForm
                                         $set('unit_price', $product->price);
                                         $quantity = $get('quantity') ?? 1;
                                         $set('subtotal', $product->price * $quantity);
+
+                                        // Mostrar stock disponible
+                                        $set('../../stock_info', "Stock disponible: {$product->stock}");
                                     }
                                 }
                             }),
@@ -67,7 +89,19 @@ class SaleForm
                                 // Recalcular subtotal al cambiar cantidad
                                 $price = $get('unit_price') ?? 0;
                                 $set('subtotal', $price * $state);
-                            }),
+
+                                // Validar stock disponible
+                                $productId = $get('product_id');
+                                if ($productId && $state) {
+                                    $product = Product::find($productId);
+                                    if ($product && $state > $product->stock) {
+                                        $set('../../stock_warning', "⚠️ Solo hay {$product->stock} unidades disponibles");
+                                    } else {
+                                        $set('../../stock_warning', null);
+                                    }
+                                }
+                            })
+                            ->helperText(fn($get) => $get('product_id') ? 'Verifica el stock antes de continuar' : ''),
 
                         TextInput::make('unit_price')
                             ->label('Precio Unitario')
