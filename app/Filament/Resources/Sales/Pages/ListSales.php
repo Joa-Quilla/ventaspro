@@ -13,7 +13,16 @@ class ListSales extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->label('Nueva Venta'),
         ];
+    }
+
+    /**
+     * Deshabilitar eliminación masiva (trazabilidad)
+     */
+    protected function canDeleteAny(): bool
+    {
+        return false;
     }
 }
