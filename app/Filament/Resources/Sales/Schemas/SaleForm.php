@@ -25,58 +25,6 @@ class SaleForm
                     ->disabled()
                     ->dehydrated(), // Enviar valor aunque esté disabled
 
-                // Campo para escanear código de barras
-                TextInput::make('barcode_scanner')
-                    ->label('🔍 Escanear Código de Barras')
-                    ->placeholder('Escanea o escribe el código de barras aquí')
-                    ->helperText('Presiona Enter después de escanear para buscar el producto')
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(function ($set, $get, $state) {
-                        if (!$state) return;
-
-                        // Buscar producto por código de barras
-                        $product = Product::where('barcode', $state)
-                            ->where('is_active', true)
-                            ->first();
-
-                        if ($product) {
-                            // Obtener items actuales
-                            $items = $get('items') ?? [];
-
-                            // Buscar si el producto ya está en la lista
-                            $existingIndex = null;
-                            foreach ($items as $index => $item) {
-                                if ($item['product_id'] === $product->id) {
-                                    $existingIndex = $index;
-                                    break;
-                                }
-                            }
-
-                            if ($existingIndex !== null) {
-                                // Si ya existe, incrementar cantidad
-                                $items[$existingIndex]['quantity'] = ($items[$existingIndex]['quantity'] ?? 1) + 1;
-                                $items[$existingIndex]['subtotal'] = $items[$existingIndex]['quantity'] * $items[$existingIndex]['unit_price'];
-                            } else {
-                                // Si no existe, agregar nuevo item
-                                $items[] = [
-                                    'product_id' => $product->id,
-                                    'quantity' => 1,
-                                    'unit_price' => $product->price,
-                                    'subtotal' => $product->price,
-                                ];
-                            }
-
-                            $set('items', $items);
-
-                            // Limpiar campo de escaneo
-                            $set('barcode_scanner', null);
-
-                            // Recalcular totales
-                            self::updateTotals($set, $get);
-                        }
-                    })
-                    ->columnSpanFull(),
-
                 // Cliente
                 TextInput::make('customer_name')
                     ->label('Nombre del Cliente')
@@ -93,7 +41,7 @@ class SaleForm
                     ->relationship('items')
                     ->schema([
                         Select::make('product_id')
-                            ->label('Producto')
+                            ->label('Producto (Nombre, SKU o Código de Barras)')
                             ->searchable()
                             ->getSearchResultsUsing(
                                 fn(string $search): array =>
@@ -116,7 +64,7 @@ class SaleForm
                             )
                             ->required()
                             ->reactive()
-                            ->afterStateUpdated(function ($set, $get, $state) {
+                            ->afterStateUpdated(function ($set, $get, $state, $livewire) {
                                 if ($state) {
                                     $product = Product::find($state);
                                     if ($product) {
@@ -126,9 +74,23 @@ class SaleForm
 
                                         // Mostrar stock disponible
                                         $set('../../stock_info', "Stock disponible: {$product->stock}");
+
+                                        // Auto-agregar nueva línea para seguir escaneando
+                                        // Esto permite flujo continuo: escanear -> siguiente producto
+                                        $currentKey = $get('../../currentItemKey');
+                                        if ($currentKey !== null) {
+                                            // Solo agregar si esta línea está completa
+                                            $allItems = $get('../../items') ?? [];
+                                            $lastItem = end($allItems);
+                                            if ($lastItem && isset($lastItem['product_id'])) {
+                                                // Trigger para agregar nueva línea
+                                                $livewire->dispatch('repeater-add-item', component: 'items');
+                                            }
+                                        }
                                     }
                                 }
-                            }),
+                            })
+                            ->placeholder('Escribe o escanea aquí'),
 
                         TextInput::make('quantity')
                             ->label('Cantidad')

@@ -33,15 +33,21 @@ class SalesTable
 
                 TextColumn::make('items')
                     ->label('Detalle')
-                    ->formatStateUsing(
-                        fn($record) =>
-                        $record->items->take(2)->map(
-                            fn($item) =>
-                            "{$item->quantity}x {$item->product->name}"
-                        )->join(', ') . ($record->items->count() > 2 ? '...' : '')
-                    )
+                    ->formatStateUsing(function ($record) {
+                        $total = $record->items->count();
+                        $shown = $record->items->take(3)->map(
+                            fn($item) => "{$item->quantity}x {$item->product->name}"
+                        )->join(', ');
+
+                        if ($total > 3) {
+                            $remaining = $total - 3;
+                            return $shown . " + {$remaining} más";
+                        }
+
+                        return $shown;
+                    })
                     ->wrap()
-                    ->limit(50),
+                    ->limit(80),
 
                 TextColumn::make('total')
                     ->label('Total')
