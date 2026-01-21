@@ -15,6 +15,13 @@ class ViewSale extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('print')
+                ->label('Imprimir Ticket')
+                ->icon('heroicon-o-printer')
+                ->color('success')
+                ->url(fn() => route('tickets.sale', ['sale' => $this->record->id]))
+                ->openUrlInNewTab(),
+
             Action::make('cancel')
                 ->label('Anular Venta')
                 ->icon('heroicon-o-x-circle')
