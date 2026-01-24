@@ -34,6 +34,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->pages([
                 Dashboard::class,
+                \App\Filament\Pages\Reports::class,
             ])
             ->widgets([
                 \App\Livewire\StatsOverviewWidget::class,
