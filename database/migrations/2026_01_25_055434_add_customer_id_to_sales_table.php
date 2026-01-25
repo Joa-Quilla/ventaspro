@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->string('barcode')->unique()->nullable()->after('name');
+        Schema::table('sales', function (Blueprint $table) {
+            $table->foreignId('customer_id')->nullable()->after('user_id')->constrained()->nullOnDelete();
         });
     }
 
@@ -21,8 +21,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->dropColumn('barcode');
+        Schema::table('sales', function (Blueprint $table) {
+            $table->dropForeign(['customer_id']);
+            $table->dropColumn('customer_id');
         });
     }
 };

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Sales\Schemas;
 
 use App\Models\Product;
+use App\Models\Customer;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -25,13 +26,32 @@ class SaleForm
                     ->disabled()
                     ->dehydrated(), // Enviar valor aunque esté disabled
 
-                // Cliente
+                // Cliente registrado
+                Select::make('customer_id')
+                    ->label('Cliente Registrado')
+                    ->relationship('customer', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->createOptionForm([
+                        TextInput::make('name')
+                            ->label('Nombre')
+                            ->required(),
+                        TextInput::make('phone')
+                            ->label('Teléfono'),
+                        TextInput::make('email')
+                            ->label('Email')
+                            ->email(),
+                    ])
+                    ->helperText('Opcional: selecciona un cliente registrado'),
+
+                // Cliente manual (si no está registrado)
                 TextInput::make('customer_name')
-                    ->label('Nombre del Cliente')
-                    ->placeholder('Ej: Juan Pérez'),
+                    ->label('Nombre del Cliente (Manual)')
+                    ->placeholder('Ej: Juan Pérez')
+                    ->helperText('Solo si el cliente no está registrado'),
 
                 TextInput::make('customer_phone')
-                    ->label('Teléfono del Cliente')
+                    ->label('Teléfono del Cliente (Manual)')
                     ->tel()
                     ->placeholder('Ej: 5555-5555'),
 

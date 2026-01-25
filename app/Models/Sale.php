@@ -13,6 +13,7 @@ class Sale extends Model
      */
     protected $fillable = [
         'user_id',
+        'customer_id',
         'customer_name',
         'customer_phone',
         'subtotal',
@@ -40,6 +41,16 @@ class Sale extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * RELACIÓN: Una venta pertenece a un cliente
+     * 
+     * @return BelongsTo
+     */
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
     }
 
     /**
