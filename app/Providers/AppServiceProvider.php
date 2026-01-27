@@ -2,7 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Purchase;
+use App\Models\PurchaseItem;
 use App\Models\Sale;
+use App\Observers\PurchaseItemObserver;
+use App\Observers\PurchaseObserver;
 use App\Observers\SaleObserver;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,7 +25,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Registrar Observer para manejar stock automáticamente
+        // Registrar Observers para manejar stock automáticamente
         Sale::observe(SaleObserver::class);
+        Purchase::observe(PurchaseObserver::class);
+        PurchaseItem::observe(PurchaseItemObserver::class);
     }
 }

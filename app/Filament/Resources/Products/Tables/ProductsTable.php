@@ -26,11 +26,38 @@ class ProductsTable
                 TextColumn::make('category.name')
                     ->searchable(),
                 TextColumn::make('price')
-                    ->money()
+                    ->label('Precio Venta')
+                    ->money('GTQ')
                     ->sortable(),
+
+                TextColumn::make('purchase_price')
+                    ->label('Precio Compra')
+                    ->money('GTQ')
+                    ->sortable()
+                    ->toggleable(),
+
+                TextColumn::make('profit_margin')
+                    ->label('Margen')
+                    ->state(function ($record) {
+                        if ($record->purchase_price > 0) {
+                            $margin = (($record->price - $record->purchase_price) / $record->purchase_price) * 100;
+                            return number_format($margin, 1) . '%';
+                        }
+                        return 'N/A';
+                    })
+                    ->color(
+                        fn($record) =>
+                        $record->purchase_price > 0 && $record->price > $record->purchase_price
+                            ? 'success'
+                            : 'danger'
+                    )
+                    ->alignCenter()
+                    ->toggleable(),
+
                 TextColumn::make('cost')
-                    ->money()
-                    ->sortable(),
+                    ->money('GTQ')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('stock')
                     ->numeric()
                     ->sortable(),

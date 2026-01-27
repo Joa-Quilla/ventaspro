@@ -15,6 +15,7 @@ class Product extends Model
         'category_id',
         'price',
         'cost',
+        'purchase_price',
         'stock',
         'min_stock',
         'is_active',
@@ -25,6 +26,7 @@ class Product extends Model
 
         'price' => 'float',
         'cost' => 'float',
+        'purchase_price' => 'float',
         'stock' => 'integer',
         'min_stock' => 'integer',
         'is_active' => 'boolean',
