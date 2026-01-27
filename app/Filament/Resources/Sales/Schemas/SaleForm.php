@@ -32,6 +32,17 @@ class SaleForm
                     ->relationship('customer', 'name')
                     ->searchable()
                     ->preload()
+                    ->reactive()
+                    ->afterStateUpdated(function ($set, $state) {
+                        if ($state) {
+                            // Si se selecciona un cliente, cargar sus datos
+                            $customer = Customer::find($state);
+                            if ($customer) {
+                                $set('customer_name', $customer->name);
+                                $set('customer_phone', $customer->phone);
+                            }
+                        }
+                    })
                     ->createOptionForm([
                         TextInput::make('name')
                             ->label('Nombre')
@@ -48,6 +59,19 @@ class SaleForm
                 TextInput::make('customer_name')
                     ->label('Nombre del Cliente (Manual)')
                     ->placeholder('Ej: Juan Pérez')
+                    ->reactive()
+                    ->afterStateUpdated(function ($set, $get, $state) {
+                        // Si se escribe manualmente, limpiar el customer_id
+                        if ($state && !$get('customer_id')) {
+                            // Solo limpiar si realmente están escribiendo
+                        } elseif ($state && $get('customer_id')) {
+                            // Si tienen un customer_id pero están escribiendo, limpiar el customer_id
+                            $customer = Customer::find($get('customer_id'));
+                            if ($customer && $state !== $customer->name) {
+                                $set('customer_id', null);
+                            }
+                        }
+                    })
                     ->helperText('Solo si el cliente no está registrado'),
 
                 TextInput::make('customer_phone')
