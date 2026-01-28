@@ -26,6 +26,11 @@ class SaleObserver
 
             if ($sale->items->count() > 0) {
                 $this->reduceStock($sale);
+
+                // Si es venta a crédito, actualizar balance del cliente
+                if ($sale->payment_method === 'credit' && $sale->customer_id) {
+                    $this->updateCustomerBalance($sale, 'add');
+                }
             }
         }
     }
@@ -96,5 +101,28 @@ class SaleObserver
                 }
             }
         });
+
+        // Si era venta a crédito, restar del balance del cliente
+        if ($sale->payment_method === 'credit' && $sale->customer_id) {
+            $this->updateCustomerBalance($sale, 'subtract');
+        }
+    }
+
+    /**
+     * Actualizar balance del cliente en ventas a crédito
+     */
+    protected function updateCustomerBalance(Sale $sale, string $operation): void
+    {
+        $customer = \App\Models\Customer::find($sale->customer_id);
+
+        if ($customer) {
+            if ($operation === 'add') {
+                // Sumar al balance (aumentar deuda)
+                $customer->increment('current_balance', $sale->total);
+            } elseif ($operation === 'subtract') {
+                // Restar del balance (disminuir deuda)
+                $customer->decrement('current_balance', $sale->total);
+            }
+        }
     }
 }

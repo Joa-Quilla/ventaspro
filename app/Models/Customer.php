@@ -39,6 +39,11 @@ class Customer extends Model
         return $this->hasMany(Sale::class);
     }
 
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
     public function getAvailableCreditAttribute(): float
     {
         return $this->credit_limit - $this->current_balance;
@@ -47,5 +52,10 @@ class Customer extends Model
     public function getTotalPurchasesAttribute(): float
     {
         return $this->sales()->sum('total');
+    }
+
+    public function getTotalPaymentsAttribute(): float
+    {
+        return $this->payments()->sum('amount');
     }
 }
