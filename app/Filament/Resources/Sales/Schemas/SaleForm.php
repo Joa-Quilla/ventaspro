@@ -119,6 +119,15 @@ class SaleForm
                                         // Mostrar stock disponible
                                         $set('../../stock_info', "Stock disponible: {$product->stock}");
 
+                                        // Actualizar totales
+                                        $setParent = function ($field, $value) use ($set) {
+                                            $set('../../' . $field, $value);
+                                        };
+                                        $getParent = function ($field) use ($get) {
+                                            return $get('../../' . $field);
+                                        };
+                                        self::updateTotals($setParent, $getParent);
+
                                         // Auto-agregar nueva línea para seguir escaneando
                                         // Esto permite flujo continuo: escanear -> siguiente producto
                                         $currentKey = $get('../../currentItemKey');
@@ -142,11 +151,20 @@ class SaleForm
                             ->default(1)
                             ->minValue(1)
                             ->required()
-                            ->reactive()
+                            ->lazy()
                             ->afterStateUpdated(function ($set, $get, $state) {
                                 // Recalcular subtotal al cambiar cantidad
                                 $price = $get('unit_price') ?? 0;
                                 $set('subtotal', $price * $state);
+
+                                // Actualizar totales
+                                $setParent = function ($field, $value) use ($set) {
+                                    $set('../../' . $field, $value);
+                                };
+                                $getParent = function ($field) use ($get) {
+                                    return $get('../../' . $field);
+                                };
+                                self::updateTotals($setParent, $getParent);
 
                                 // Validar stock disponible
                                 $productId = $get('product_id');
@@ -216,8 +234,40 @@ class SaleForm
                         'cash' => 'Efectivo',
                         'card' => 'Tarjeta',
                         'transfer' => 'Transferencia',
+                        'credit' => 'Crédito (Cuenta Corriente)',
                     ])
                     ->default('cash')
+                    ->reactive()
+                    ->afterStateUpdated(function ($set, $get, $state) {
+                        // Si selecciona crédito, validar que tenga un cliente seleccionado
+                        if ($state === 'credit' && !$get('customer_id')) {
+                            $set('payment_method', 'cash');
+                            \Filament\Notifications\Notification::make()
+                                ->warning()
+                                ->title('Seleccione un cliente')
+                                ->body('Debe seleccionar un cliente para vender a crédito.')
+                                ->send();
+                        }
+                        // Verificar crédito disponible
+                        if ($state === 'credit' && $get('customer_id') && $get('total')) {
+                            $customer = \App\Models\Customer::find($get('customer_id'));
+                            if ($customer && $get('total') > $customer->available_credit) {
+                                $set('payment_method', 'cash');
+                                \Filament\Notifications\Notification::make()
+                                    ->danger()
+                                    ->title('Crédito insuficiente')
+                                    ->body("El cliente no tiene suficiente crédito. Disponible: Q" . number_format($customer->available_credit, 2) . ", Requerido: Q" . number_format($get('total'), 2))
+                                    ->persistent()
+                                    ->send();
+                            }
+                        }
+                    })
+                    ->helperText(
+                        fn($get) =>
+                        $get('payment_method') === 'credit' && $get('customer_id')
+                            ? 'Crédito disponible: Q' . number_format(\App\Models\Customer::find($get('customer_id'))?->available_credit ?? 0, 2)
+                            : null
+                    )
                     ->required(),
 
                 // Estado

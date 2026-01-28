@@ -45,6 +45,36 @@ class CreateSale extends CreateRecord
                 }
             }
         }
+
+        // Validar límite de crédito si el método de pago es crédito
+        if (isset($this->data['payment_method']) && $this->data['payment_method'] === 'credit') {
+            if (!isset($this->data['customer_id']) || !$this->data['customer_id']) {
+                Notification::make()
+                    ->danger()
+                    ->title('Cliente requerido')
+                    ->body('Debe seleccionar un cliente para vender a crédito.')
+                    ->send();
+
+                $this->halt();
+            }
+
+            $customer = \App\Models\Customer::find($this->data['customer_id']);
+            if ($customer) {
+                $total = (float)($this->data['total'] ?? 0);
+                $availableCredit = $customer->available_credit;
+
+                if ($total > $availableCredit) {
+                    Notification::make()
+                        ->danger()
+                        ->title('Crédito insuficiente')
+                        ->body("El monto (Q" . number_format($total, 2) . ") excede el crédito disponible (Q" . number_format($availableCredit, 2) . "). El cliente ya tiene Q" . number_format($customer->current_balance, 2) . " de deuda.")
+                        ->persistent()
+                        ->send();
+
+                    $this->halt();
+                }
+            }
+        }
     }
 
     /**
