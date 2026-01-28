@@ -103,6 +103,15 @@ class CreateSale extends CreateRecord
                         Log::info("  - {$product->name}: {$stockAnterior} → {$product->stock}");
                     }
                 }
+
+                // Si es venta a crédito, actualizar balance del cliente
+                if ($sale->payment_method === 'credit' && $sale->customer_id) {
+                    $customer = \App\Models\Customer::find($sale->customer_id);
+                    if ($customer) {
+                        $customer->increment('current_balance', $sale->total);
+                        Log::info("💳 Cliente #{$customer->id} - Balance actualizado: Q{$customer->fresh()->current_balance}");
+                    }
+                }
             });
         }
     }

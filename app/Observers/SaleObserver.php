@@ -15,23 +15,10 @@ class SaleObserver
      */
     public function saved(Sale $sale): void
     {
-        // Solo reducir stock si la venta está completada
+        // La reducción de stock y actualización de balance se manejan en CreateSale::afterCreate()
+        // Este observer solo se usa para actualizaciones posteriores
         if ($sale->status === 'completed' && !$sale->wasRecentlyCreated) {
             return; // Ya se procesó en created
-        }
-
-        if ($sale->status === 'completed' && $sale->wasRecentlyCreated) {
-            // Esperar un momento para que los items se guarden
-            $sale->loadMissing('items');
-
-            if ($sale->items->count() > 0) {
-                $this->reduceStock($sale);
-
-                // Si es venta a crédito, actualizar balance del cliente
-                if ($sale->payment_method === 'credit' && $sale->customer_id) {
-                    $this->updateCustomerBalance($sale, 'add');
-                }
-            }
         }
     }
 
