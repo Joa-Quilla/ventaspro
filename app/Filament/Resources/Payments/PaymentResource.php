@@ -35,4 +35,13 @@ class PaymentResource extends Resource
     {
         return PaymentsTable::configure($table);
     }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => \App\Filament\Resources\Payments\Pages\ListPayments::route('/'),
+            'create' => \App\Filament\Resources\Payments\Pages\CreatePayment::route('/create'),
+            'edit' => \App\Filament\Resources\Payments\Pages\EditPayment::route('/{record}/edit'),
+        ];
+    }
 }
