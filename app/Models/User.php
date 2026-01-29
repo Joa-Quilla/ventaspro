@@ -57,6 +57,37 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class);
     }
 
+    /**
+     * Cache key para los permisos del usuario
+     */
+    private function permissionsCacheKey(): string
+    {
+        return "user_{$this->id}_permissions";
+    }
+
+    /**
+     * Obtiene todos los permisos del usuario (con cache)
+     */
+    public function getAllPermissions(): array
+    {
+        return cache()->remember($this->permissionsCacheKey(), 3600, function () {
+            return $this->roles()->with('permissions')->get()
+                ->pluck('permissions')
+                ->flatten()
+                ->pluck('name')
+                ->unique()
+                ->toArray();
+        });
+    }
+
+    /**
+     * Limpia el cache de permisos
+     */
+    public function clearPermissionsCache(): void
+    {
+        cache()->forget($this->permissionsCacheKey());
+    }
+
     public function hasRole(string $roleName): bool
     {
         return $this->roles()->where('name', $roleName)->exists();
@@ -64,9 +95,7 @@ class User extends Authenticatable
 
     public function hasPermission(string $permissionName): bool
     {
-        return $this->roles()->whereHas('permissions', function ($query) use ($permissionName) {
-            $query->where('name', $permissionName);
-        })->exists();
+        return in_array($permissionName, $this->getAllPermissions());
     }
 
     public function hasAnyRole(array $roles): bool

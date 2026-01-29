@@ -18,4 +18,9 @@ class AuthHelper
     {
         return self::user()?->hasPermission($permission) ?? false;
     }
+
+    public static function clearPermissionsCache(): void
+    {
+        self::user()?->clearPermissionsCache();
+    }
 }
