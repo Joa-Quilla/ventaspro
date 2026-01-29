@@ -7,6 +7,7 @@ use App\Filament\Resources\Sales\Pages\EditSale;
 use App\Filament\Resources\Sales\Pages\ListSales;
 use App\Filament\Resources\Sales\Schemas\SaleForm;
 use App\Filament\Resources\Sales\Tables\SalesTable;
+use App\Helpers\AuthHelper;
 use App\Models\Sale;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -50,21 +51,21 @@ class SaleResource extends Resource
 
     public static function canAccess(): bool
     {
-        return Auth::user()?->hasPermission('sales.view') ?? false;
+        return AuthHelper::hasPermission('sales.view');
     }
 
     public static function canCreate(): bool
     {
-        return Auth::user()?->hasPermission('sales.create') ?? false;
+        return AuthHelper::hasPermission('sales.create');
     }
 
     public static function canEdit($record): bool
     {
-        return Auth::user()?->hasPermission('sales.edit') ?? false;
+        return AuthHelper::hasPermission('sales.edit');
     }
 
     public static function canDelete($record): bool
     {
-        return Auth::user()?->hasPermission('sales.delete') ?? false;
+        return AuthHelper::hasPermission('sales.delete');
     }
 }

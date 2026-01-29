@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Payments;
 
 use App\Filament\Resources\Payments\Schemas\PaymentForm;
 use App\Filament\Resources\Payments\Tables\PaymentsTable;
+use App\Helpers\AuthHelper;
 use App\Models\Payment;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -48,21 +49,21 @@ class PaymentResource extends Resource
 
     public static function canAccess(): bool
     {
-        return Auth::user()?->hasPermission('payments.view') ?? false;
+        return AuthHelper::hasPermission('payments.view');
     }
 
     public static function canCreate(): bool
     {
-        return Auth::user()?->hasPermission('payments.create') ?? false;
+        return AuthHelper::hasPermission('payments.create');
     }
 
     public static function canEdit($record): bool
     {
-        return Auth::user()?->hasPermission('payments.edit') ?? false;
+        return AuthHelper::hasPermission('payments.edit');
     }
 
     public static function canDelete($record): bool
     {
-        return Auth::user()?->hasPermission('payments.delete') ?? false;
+        return AuthHelper::hasPermission('payments.delete');
     }
 }

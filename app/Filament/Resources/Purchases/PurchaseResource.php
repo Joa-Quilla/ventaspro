@@ -7,6 +7,7 @@ use App\Filament\Resources\Purchases\Pages\EditPurchase;
 use App\Filament\Resources\Purchases\Pages\ListPurchases;
 use App\Filament\Resources\Purchases\Schemas\PurchaseForm;
 use App\Filament\Resources\Purchases\Tables\PurchasesTable;
+use App\Helpers\AuthHelper;
 use App\Models\Purchase;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -58,21 +59,21 @@ class PurchaseResource extends Resource
 
     public static function canAccess(): bool
     {
-        return Auth::user()?->hasPermission('purchases.view') ?? false;
+        return AuthHelper::hasPermission('purchases.view');
     }
 
     public static function canCreate(): bool
     {
-        return Auth::user()?->hasPermission('purchases.create') ?? false;
+        return AuthHelper::hasPermission('purchases.create');
     }
 
     public static function canEdit($record): bool
     {
-        return Auth::user()?->hasPermission('purchases.edit') ?? false;
+        return AuthHelper::hasPermission('purchases.edit');
     }
 
     public static function canDelete($record): bool
     {
-        return Auth::user()?->hasPermission('purchases.delete') ?? false;
+        return AuthHelper::hasPermission('purchases.delete');
     }
 }

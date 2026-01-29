@@ -7,6 +7,7 @@ use App\Filament\Resources\Suppliers\Pages\EditSupplier;
 use App\Filament\Resources\Suppliers\Pages\ListSuppliers;
 use App\Filament\Resources\Suppliers\Schemas\SupplierForm;
 use App\Filament\Resources\Suppliers\Tables\SuppliersTable;
+use App\Helpers\AuthHelper;
 use App\Models\Supplier;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -58,21 +59,21 @@ class SupplierResource extends Resource
 
     public static function canAccess(): bool
     {
-        return Auth::user()?->hasPermission('suppliers.view') ?? false;
+        return AuthHelper::hasPermission('suppliers.view');
     }
 
     public static function canCreate(): bool
     {
-        return Auth::user()?->hasPermission('suppliers.create') ?? false;
+        return AuthHelper::hasPermission('suppliers.create');
     }
 
     public static function canEdit($record): bool
     {
-        return Auth::user()?->hasPermission('suppliers.edit') ?? false;
+        return AuthHelper::hasPermission('suppliers.edit');
     }
 
     public static function canDelete($record): bool
     {
-        return Auth::user()?->hasPermission('suppliers.delete') ?? false;
+        return AuthHelper::hasPermission('suppliers.delete');
     }
 }

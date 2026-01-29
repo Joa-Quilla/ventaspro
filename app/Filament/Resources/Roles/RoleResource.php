@@ -7,6 +7,7 @@ use App\Filament\Resources\Roles\Pages\EditRole;
 use App\Filament\Resources\Roles\Pages\ListRoles;
 use App\Filament\Resources\Roles\Schemas\RoleForm;
 use App\Filament\Resources\Roles\Tables\RolesTable;
+use App\Helpers\AuthHelper;
 use App\Models\Role;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -57,6 +58,6 @@ class RoleResource extends Resource
 
     public static function canAccess(): bool
     {
-        return Auth::user()?->hasPermission('roles.manage') ?? false;
+        return AuthHelper::hasPermission('roles.manage');
     }
 }

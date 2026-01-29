@@ -7,6 +7,7 @@ use App\Filament\Resources\Categories\Pages\EditCategory;
 use App\Filament\Resources\Categories\Pages\ListCategories;
 use App\Filament\Resources\Categories\Schemas\CategoryForm;
 use App\Filament\Resources\Categories\Tables\CategoriesTable;
+use App\Helpers\AuthHelper;
 use App\Models\Category;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -51,21 +52,21 @@ class CategoryResource extends Resource
 
     public static function canAccess(): bool
     {
-        return Auth::user()?->hasPermission('categories.view') ?? false;
+        return AuthHelper::hasPermission('categories.view');
     }
 
     public static function canCreate(): bool
     {
-        return Auth::user()?->hasPermission('categories.create') ?? false;
+        return AuthHelper::hasPermission('categories.create');
     }
 
     public static function canEdit($record): bool
     {
-        return Auth::user()?->hasPermission('categories.edit') ?? false;
+        return AuthHelper::hasPermission('categories.edit');
     }
 
     public static function canDelete($record): bool
     {
-        return Auth::user()?->hasPermission('categories.delete') ?? false;
+        return AuthHelper::hasPermission('categories.delete');
     }
 }

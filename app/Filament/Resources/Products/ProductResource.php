@@ -7,6 +7,7 @@ use App\Filament\Resources\Products\Pages\EditProduct;
 use App\Filament\Resources\Products\Pages\ListProducts;
 use App\Filament\Resources\Products\Schemas\ProductForm;
 use App\Filament\Resources\Products\Tables\ProductsTable;
+use App\Helpers\AuthHelper;
 use App\Models\Product;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -51,21 +52,21 @@ class ProductResource extends Resource
 
     public static function canAccess(): bool
     {
-        return Auth::user()?->hasPermission('products.view') ?? false;
+        return AuthHelper::hasPermission('products.view');
     }
 
     public static function canCreate(): bool
     {
-        return Auth::user()?->hasPermission('products.create') ?? false;
+        return AuthHelper::hasPermission('products.create');
     }
 
     public static function canEdit($record): bool
     {
-        return Auth::user()?->hasPermission('products.edit') ?? false;
+        return AuthHelper::hasPermission('products.edit');
     }
 
     public static function canDelete($record): bool
     {
-        return Auth::user()?->hasPermission('products.delete') ?? false;
+        return AuthHelper::hasPermission('products.delete');
     }
 }

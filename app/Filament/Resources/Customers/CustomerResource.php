@@ -8,6 +8,7 @@ use App\Filament\Resources\Customers\Pages\ListCustomers;
 use App\Filament\Resources\Customers\Pages\ViewCustomer;
 use App\Filament\Resources\Customers\Schemas\CustomerForm;
 use App\Filament\Resources\Customers\Tables\CustomersTable;
+use App\Helpers\AuthHelper;
 use App\Models\Customer;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -61,21 +62,21 @@ class CustomerResource extends Resource
 
     public static function canAccess(): bool
     {
-        return Auth::user()?->hasPermission('customers.view') ?? false;
+        return AuthHelper::hasPermission('customers.view');
     }
 
     public static function canCreate(): bool
     {
-        return Auth::user()?->hasPermission('customers.create') ?? false;
+        return AuthHelper::hasPermission('customers.create');
     }
 
     public static function canEdit($record): bool
     {
-        return Auth::user()?->hasPermission('customers.edit') ?? false;
+        return AuthHelper::hasPermission('customers.edit');
     }
 
     public static function canDelete($record): bool
     {
-        return Auth::user()?->hasPermission('customers.delete') ?? false;
+        return AuthHelper::hasPermission('customers.delete');
     }
 }
