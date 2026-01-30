@@ -68,6 +68,10 @@ class PermissionsSeeder extends Seeder
 
             // Dashboard
             ['name' => 'dashboard.view', 'display_name' => 'Ver Dashboard', 'description' => 'Puede acceder al dashboard'],
+
+            // TPV (Terminal Punto de Venta)
+            ['name' => 'tpv.access', 'display_name' => 'Acceder al TPV', 'description' => 'Puede acceder al Terminal Punto de Venta'],
+            ['name' => 'tpv.sell', 'display_name' => 'Realizar Ventas TPV', 'description' => 'Puede realizar ventas desde el TPV'],
         ];
 
         foreach ($permissions as $permission) {
@@ -109,6 +113,8 @@ class PermissionsSeeder extends Seeder
         // Asignar permisos al cajero
         $cajeroPermissions = Permission::whereIn('name', [
             'dashboard.view',
+            'tpv.access',
+            'tpv.sell',
             'sales.view',
             'sales.create',
             'customers.view',
