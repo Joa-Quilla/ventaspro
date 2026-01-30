@@ -132,13 +132,15 @@
                     <div style="display: flex; justify-content: space-between;"
                         class="text-sm text-gray-600 dark:text-gray-400">
                         <span>Subtotal:</span>
-                        <span class="font-semibold">${{ number_format($this->subtotal, 2) }}</span>
+                        <span class="font-semibold"
+                            wire:key="subtotal-{{ count($cart) }}">${{ number_format($this->subtotal, 2) }}</span>
                     </div>
 
                     <div style="border-top: 1px solid rgba(0,0,0,0.1); padding-top: 0.75rem; display: flex; justify-content: space-between; align-items: center;"
                         class="dark:border-white/10">
                         <span class="text-lg font-bold text-gray-950 dark:text-white">Total:</span>
-                        <span class="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                        <span class="text-2xl font-bold text-orange-600 dark:text-orange-400"
+                            wire:key="total-{{ count($cart) }}">
                             ${{ number_format($this->total, 2) }}
                         </span>
                     </div>
@@ -170,42 +172,15 @@
                     Método de Pago
                 </x-slot>
 
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem;">
-                    <button wire:click="$set('paymentMethod', 'cash')" type="button"
-                        style="{{ $paymentMethod === 'cash' ? 'border: 3px solid #f97316; background: #fff7ed;' : 'border: 1px solid #e5e7eb;' }}"
-                        class="fi-btn relative grid place-content-center gap-1 p-3 rounded-lg shadow-sm transition duration-75 hover:bg-gray-50 dark:bg-white/5 dark:ring-white/10 dark:hover:bg-white/10">
-                        <div class="text-center">
-                            <div class="text-2xl mb-1">💵</div>
-                            <div class="text-sm font-semibold"
-                                style="{{ $paymentMethod === 'cash' ? 'color: #f97316;' : '' }}">
-                                Efectivo
-                            </div>
-                        </div>
-                    </button>
-
-                    <button wire:click="$set('paymentMethod', 'card')" type="button"
-                        style="{{ $paymentMethod === 'card' ? 'border: 3px solid #f97316; background: #fff7ed;' : 'border: 1px solid #e5e7eb;' }}"
-                        class="fi-btn relative grid place-content-center gap-1 p-3 rounded-lg shadow-sm transition duration-75 hover:bg-gray-50 dark:bg-white/5 dark:ring-white/10 dark:hover:bg-white/10">
-                        <div class="text-center">
-                            <div class="text-2xl mb-1">💳</div>
-                            <div class="text-sm font-semibold"
-                                style="{{ $paymentMethod === 'card' ? 'color: #f97316;' : '' }}">
-                                Tarjeta
-                            </div>
-                        </div>
-                    </button>
-
-                    <button wire:click="$set('paymentMethod', 'transfer')" type="button"
-                        style="{{ $paymentMethod === 'transfer' ? 'border: 3px solid #f97316; background: #fff7ed;' : 'border: 1px solid #e5e7eb;' }}"
-                        class="fi-btn relative grid place-content-center gap-1 p-3 rounded-lg shadow-sm transition duration-75 hover:bg-gray-50 dark:bg-white/5 dark:ring-white/10 dark:hover:bg-white/10">
-                        <div class="text-center">
-                            <div class="text-2xl mb-1">🏦</div>
-                            <div class="text-sm font-semibold"
-                                style="{{ $paymentMethod === 'transfer' ? 'color: #f97316;' : '' }}">
-                                Transferencia
-                            </div>
-                        </div>
-                    </button>
+                <div class="fi-fo-field-wrp">
+                    <div class="fi-input-wrp">
+                        <select wire:model.live="paymentMethod"
+                            class="fi-select fi-input block w-full rounded-lg border-none bg-white shadow-sm ring-1 ring-orange-500 focus:ring-2 focus:ring-orange-500 dark:bg-white/5 dark:ring-white/20 dark:focus:ring-orange-400 sm:text-sm sm:leading-6">
+                            <option value="cash">💵 Efectivo</option>
+                            <option value="card">💳 Tarjeta</option>
+                            <option value="transfer">🏦 Transferencia</option>
+                        </select>
+                    </div>
                 </div>
             </x-filament::section>
 
